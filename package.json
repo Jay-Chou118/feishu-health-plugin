@@ -1,0 +1,28 @@
+{
+  "name": "feishu-health-plugin",
+  "version": "1.0.0",
+  "description": "飞书提示插件 - 从Apple Watch获取运动和睡眠数据并上传到飞书",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "feishu",
+    "apple-watch",
+    "health",
+    "fitness",
+    "sleep"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@larksuiteoapi/node-sdk": "^6.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "nodemon": "^3.0.0"
+  }
+}
