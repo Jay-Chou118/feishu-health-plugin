@@ -13,27 +13,46 @@ async function main() {
     const healthData = await healthService.fetchRealData();
     console.log('✅ 健康数据获取成功');
     
-    console.log('📝 正在生成健康报告...');
-    const report = healthService.generateHealthReport();
-    console.log('✅ 健康报告生成成功');
-    
-    console.log('📤 正在上传到飞书...');
+    console.log('📝 正在发送健康通知...');
     const today = new Date();
-    const docTitle = `${formatDate(today)} ${getDayOfWeek(today)} 健康报告`;
+    const dateStr = `${formatDate(today)} ${getDayOfWeek(today)}`;
     
-    const docId = await feishuClient.createDoc(docTitle, report);
-    console.log('✅ 飞书文档创建成功');
-    console.log(`📄 文档ID: ${docId}`);
+    const response = await feishuClient.sendHealthNotification(healthData);
     
-    console.log('\n🎉 健康数据已成功上传到飞书！');
-    console.log('📋 今日健康摘要：');
-    console.log(`  - 步数：${healthData.steps.today} 步`);
-    console.log(`  - 睡眠：${healthData.sleep.totalSleep} 小时`);
-    console.log(`  - 心率：${healthData.heartRate.average} bpm`);
+    console.log('✅ 健康通知发送成功！');
+    console.log(`📬 消息ID: ${response.data.message.message_id}`);
+    
+    console.log('\n🎉 今日健康摘要：');
+    console.log(`📅 ${dateStr}`);
+    console.log(`🚶 步数：${healthData.steps.today} 步 (目标完成率: ${Math.round(healthData.steps.today / healthData.steps.goal * 100)}%)`);
+    console.log(`💤 睡眠：${healthData.sleep.totalSleep} 小时 (评分: ${healthData.sleep.sleepScore}分)`);
+    console.log(`❤️ 心率：${healthData.heartRate.average} bpm (静息: ${healthData.heartRate.resting} bpm)`);
+    console.log(`🔥 消耗：${healthData.activeEnergy.today} kcal`);
+    console.log(`🚶 距离：${healthData.walkingDistance.today} km`);
     
   } catch (error) {
     console.error('❌ 发生错误:', error.message);
     process.exit(1);
+  }
+}
+
+async function sendTextNotification(message) {
+  const feishuClient = new FeishuClient();
+  try {
+    await feishuClient.sendTextMessage(message);
+    console.log('✅ 文本消息发送成功');
+  } catch (error) {
+    console.error('❌ 发送失败:', error.message);
+  }
+}
+
+async function sendGroupNotification(message, chatId) {
+  const feishuClient = new FeishuClient();
+  try {
+    await feishuClient.sendGroupMessage(message, chatId);
+    console.log('✅ 群消息发送成功');
+  } catch (error) {
+    console.error('❌ 发送失败:', error.message);
   }
 }
 
@@ -43,6 +62,8 @@ if (require.main === module) {
 
 module.exports = {
   main,
+  sendTextNotification,
+  sendGroupNotification,
   FeishuClient,
   HealthDataService
 };
